@@ -19,6 +19,8 @@ byte[][] ch_ext = {
     {ROOK|WHITE, KNIGHT|WHITE, BISHOP|WHITE, QUEEN|WHITE, KING|WHITE, BISHOP|WHITE, KNIGHT|WHITE, ROOK|WHITE},
 };
 #define PIECE_IS(type, row, col) (ch_ext[row][col]&type)                        //equal zero if type doesn't matches, greater than zero otherwise
+#define PIECE_IS_ALL(type, row, col) ((ch_ext[row][col]&type) == type)
+#define OPPONENT(player) player^0x03
 
 void ch_monitoring(){
     bool found = false;
@@ -35,9 +37,8 @@ void ch_monitoring(){
                     find_moves(row, col-1);
                     show_moves();
                     }
-                }
-            found = true;
             }
+            found = true;
         }
     }
 }
@@ -55,35 +56,35 @@ void find_moves(row, col){
         case PAWN|player1:
             if(!PIECE_IS(PRESENT, row+(1*direction), col)) SET_LED(GREEN, row+(1*direction), col);
             if(!PIECE_IS(PRESENT, row+(2*direction), col) && FIRST_MOVE(row, col)) SET_LED(GREEN, row+(1*direction), col);
-            if(PIECE_IS(player^0b00000011, row+(1*direction), col+1)) SET_LED(RED, row+(1*direction), col+1);
-            if(PIECE_IS(player^0b00000011, row+(1*direction), col-1)) SET_LED(RED, row+(1*direction), col-1);
+            if(PIECE_IS(OPPONENT(player), row+(1*direction), col+1)) SET_LED(RED, row+(1*direction), col+1);
+            if(PIECE_IS(OPPONENT(player), row+(1*direction), col-1)) SET_LED(RED, row+(1*direction), col-1);
             break;
         case ROOK|WHITE:
         case ROOK|BLACK:
             for(int i = row; i < 8; i++){
                 if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
-                if(PIECE_IS(player^0b00000011, i, col)){
+                if(PIECE_IS(OPPONENT(player), i, col)){
                     SET_LED(RED, i, col);
                     break;
                 }
             }
             for(int i = row; i >= 0; i--){
                 if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
-                if(PIECE_IS(player^0b00000011, i, col)){
+                if(PIECE_IS(OPPONENT(player), i, col)){
                     SET_LED(RED, i, col);
                     break;
                 }
             }
             for(int i = col; i < 8; i++){
                 if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
-                if(PIECE_IS(player^0b00000011, row, i)){
+                if(PIECE_IS(OPPONENT(player), row, i)){
                     SET_LED(RED, row, i);
                     break;
                 }
             }
             for(int i = col; i >= 0; i--){
                 if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
-                if(PIECE_IS(player^0b00000011, row, i)){
+                if(PIECE_IS(OPPONENT(player), row, i)){
                     SET_LED(RED, row, i);
                     break;
                 }
@@ -101,15 +102,15 @@ void find_moves(row, col){
             if(!PIECE_IS(PRESENT, row - 2, col + 1)) SET_LED(GREEN, row - 2, col + 1);
             if(!PIECE_IS(PRESENT, row - 2, col - 1)) SET_LED(GREEN, row - 2, col - 1);
 
-            if(PIECE_IS(player^0b00000011, row + 1, col + 2)) SET_LED(RED, row + 1, col + 2);
-            if(PIECE_IS(player^0b00000011, row + 1, col - 2)) SET_LED(RED, row + 1, col - 2);
-            if(PIECE_IS(player^0b00000011, row - 1, col + 2)) SET_LED(RED, row - 1, col + 2);
-            if(PIECE_IS(player^0b00000011, row - 1, col - 2)) SET_LED(RED, row - 1, col - 2);
+            if(PIECE_IS(OPPONENT(player), row + 1, col + 2)) SET_LED(RED, row + 1, col + 2);
+            if(PIECE_IS(OPPONENT(player), row + 1, col - 2)) SET_LED(RED, row + 1, col - 2);
+            if(PIECE_IS(OPPONENT(player), row - 1, col + 2)) SET_LED(RED, row - 1, col + 2);
+            if(PIECE_IS(OPPONENT(player), row - 1, col - 2)) SET_LED(RED, row - 1, col - 2);
 
-            if(PIECE_IS(player^0b00000011, row + 2, col + 1)) SET_LED(RED, row + 2, col + 1);
-            if(PIECE_IS(player^0b00000011, row + 2, col - 1)) SET_LED(RED, row + 2, col - 1);
-            if(PIECE_IS(player^0b00000011, row - 2, col + 1)) SET_LED(RED, row - 2, col + 1);
-            if(PIECE_IS(player^0b00000011, row - 2, col - 1)) SET_LED(RED, row - 2, col - 1);
+            if(PIECE_IS(OPPONENT(player), row + 2, col + 1)) SET_LED(RED, row + 2, col + 1);
+            if(PIECE_IS(OPPONENT(player), row + 2, col - 1)) SET_LED(RED, row + 2, col - 1);
+            if(PIECE_IS(OPPONENT(player), row - 2, col + 1)) SET_LED(RED, row - 2, col + 1);
+            if(PIECE_IS(OPPONENT(player), row - 2, col - 1)) SET_LED(RED, row - 2, col - 1);
             break;
         case KING|BLACK:
         case KING|WHITE:
@@ -118,28 +119,28 @@ void find_moves(row, col){
         case QUEEN|WHITE:
             for(int i = row; i < 8; i++){
                 if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
-                if(PIECE_IS(player^0b00000011, i, col)){
+                if(PIECE_IS(OPPONENT(player), i, col)){
                     SET_LED(RED, i, col);
                     break;
                 }
             }
             for(int i = row; i >= 0; i--){
                 if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
-                if(PIECE_IS(player^0b00000011, i, col)){
+                if(PIECE_IS(OPPONENT(player), i, col)){
                     SET_LED(RED, i, col);
                     break;
                 }
             }
             for(int i = col; i < 8; i++){
                 if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
-                if(PIECE_IS(player^0b00000011, row, i)){
+                if(PIECE_IS(OPPONENT(player), row, i)){
                     SET_LED(RED, row, i);
                     break;
                 }
             }
             for(int i = col; i >= 0; i--){
                 if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
-                if(PIECE_IS(player^0b00000011, row, i)){
+                if(PIECE_IS(OPPONENT(player), row, i)){
                     SET_LED(RED, row, i);
                     break;
                 }
@@ -148,20 +149,124 @@ void find_moves(row, col){
         case BISHOP|WHITE:
             for(int i = 0; row + i < 8 && col + i < 8; i++){
                 if(!PIECE_IS(PRESENT, row + i, col + i)) SET_LED(GREEN, row + i, col + i);
-                if(PIECE_IS(player^0b00000011, row + i, col + i)) SET_LED(RED, row + i, col + i);
+                if(PIECE_IS(OPPONENT(player), row + i, col + i)) SET_LED(RED, row + i, col + i);
             }
             for(int i = 0; row + i < 8 && col - i > 0; i++){
                 if(!PIECE_IS(PRESENT, row + i, col - i)) SET_LED(GREEN, row + i, col - i);
-                if(PIECE_IS(player^0b00000011, row + i, col - i)) SET_LED(RED, row + i, col - i);
+                if(PIECE_IS(OPPONENT(player), row + i, col - i)) SET_LED(RED, row + i, col - i);
             }
             for(int i = 0; row - i > 0 && col + i < 8; i++){
                 if(!PIECE_IS(PRESENT, row - i, col + i)) SET_LED(GREEN, row - i, col + i);
-                if(PIECE_IS(player^0b00000011, row - i, col + i)) SET_LED(RED, row - i, col + i);
+                if(PIECE_IS(OPPONENT(player), row - i, col + i)) SET_LED(RED, row - i, col + i);
             }
             for(int i = 0; row - i > 0 && col - i > 0; i++){
                 if(!PIECE_IS(PRESENT, row - i, col - i)) SET_LED(GREEN, row - i, col - i);
-                if(PIECE_IS(player^0b00000011, row - i, col - i)) SET_LED(RED, row - i, col - i);
+                if(PIECE_IS(OPPONENT(player), row - i, col - i)) SET_LED(RED, row - i, col - i);
             }
             break;
     }
+}
+
+bool suicidal_move(old_row, old_col, new_row, new_col){
+	//TODO disable interrupt
+	backup = ch_ext[new_row][new_col];
+	ch_ext[new_row][new_col] = ch_ext[old_row][old_col];
+	ch_ext[old_row][old_col] = 0x00;
+
+	bool result = check(player);
+
+	ch_ext[old_row][old_col] = ch_ext[new_row][new_col];
+	ch_ext[new_row][new_col] = 	backup;
+	//TODO enable interrupt
+
+	return result;
+}
+
+bool check(player){
+	//find king
+	int k_row, k_col;
+	for(int row = 0; col < 8; col++){
+		for(int col = 0; col < 8; col++){
+			if(PIECE_IS_ALL(KING|player, row, col)){
+				k_row = row;
+				k_col = col;
+			}
+		}
+	}
+	//up
+	for(int i = 0; i < 8 - k_row; i++){
+		if(PIECE_IS(PRESENT, k_row + i, k_col)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row + i, k_col)) return true;
+			if(PIECE_IS(QUEEN|ROOK, k_row + i, k_col) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//down
+	for(int i = 0; i < k_row; i++){
+		if(PIECE_IS(PRESENT, k_row - i, k_col)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row - i, k_col)) return true;
+			if(PIECE_IS(QUEEN|ROOK, k_row - i, k_col) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//left
+	for(int i = 0; i < k_col; i++){
+		if(PIECE_IS(PRESENT, k_row, k_col - i)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row, k_col - i)) return true;
+			if(PIECE_IS(QUEEN|ROOK, k_row, k_col - i) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//right
+	for(int i = 0; i < 8 - k_col; i++){
+		if(PIECE_IS(PRESENT, k_row, k_col + i)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row, k_col + i)) return true;
+			if(PIECE_IS(QUEEN|ROOK, k_row, k_col + i) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//up-left
+	for(int i = 0; i < 8 - k_row &&  i < k_col; i++){
+		if(PIECE_IS(PRESENT, k_row + i, k_col - i)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row + i, k_col - i)) return true;
+			if(PIECE_IS(QUEEN|BISHOP, k_row + i, k_col - i) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//up-right
+	for(int i = 0; i < 8 - k_row &&  i < 8 - k_col; i++){
+	   if(PIECE_IS(PRESENT, k_row + i, k_col + i)){
+		   if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row + i, k_col + i)) return true;
+		   if(PIECE_IS(QUEEN|BISHOP, k_row + i, k_col + i) && PIECE_IS(OPPONENT(player))) return true;
+		   break;
+	   }
+   }
+	//down-left
+	for(int i = 0; i < k_row &&  i < k_col; i++){
+		if(PIECE_IS(PRESENT, k_row - i, k_col - i)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row - i, k_col - i)) return true;
+			if(PIECE_IS(QUEEN|BISHOP, k_row - i, k_col - i) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//down-right
+	for(int i = 0; i < k_row &&  i < 8 - k_col; i++){
+		if(PIECE_IS(PRESENT, k_row - i, k_col + i)){
+			if(i == 1 && PIECE_IS_ALL(KING|OPPONENT(player), k_row - i, k_col + i)) return true;
+			if(PIECE_IS(QUEEN|BISHOP, k_row - i, k_col + i) && PIECE_IS(OPPONENT(player))) return true;
+			break;
+		}
+	}
+	//pawn
+	//TODO pawn check
+	//knight
+	if(k_row < 7 && k_col < 5 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row + 1, k_col + 2)) return true;
+	if(k_row < 7 && k_col > 2 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row + 1, k_col - 2)) return true;
+	if(k_row > 1 && k_col < 5 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row - 1, k_col + 2)) return true;
+	if(k_row > 1 && k_col > 2 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row - 1, k_col - 2)) return true;
+
+	if(k_row < 5 && k_col < 7 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row + 2, k_col + 1)) return true;
+	if(k_row < 5 && k_col > 1 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row + 2, k_col - 1)) return true;
+	if(k_row > 2 && k_col < 7 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row - 2, k_col + 1)) return true;
+	if(k_row > 2 && k_col > 1 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row - 2, k_col - 1)) return true;
 }
