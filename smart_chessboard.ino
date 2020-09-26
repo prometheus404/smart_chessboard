@@ -22,6 +22,8 @@ byte[][] ch_ext = {
 #define PIECE_IS_ALL(type, row, col) ((ch_ext[row][col]&type) == type)
 #define OPPONENT(player) player^0x03
 
+byte player, player1, player2;													//player is the active player, player1 is the player on the bottom, player2 is the player on the top
+
 void ch_monitoring(){
     bool found = false;
     int row = 0, col, diff = 0;
@@ -45,14 +47,14 @@ void ch_monitoring(){
 
 void find_moves(row, col){
     int direction = 1;
-    if(!PIECE_IS(player, row, col)){
+    if(!PIECE_IS(player, row, col)){											//a player can only move his pieces
         error_handler();
         return;
     }
     switch (ch_ext[row][col]) {
         case
         case PAWN|player2:                                                      //player2 is the player on top (color doesn't matter)
-            direction = -1;
+            direction = -1;														//player2's pawns can only eat and move downward, player1's pawns can only eat and move upward
         case PAWN|player1:
             if(!PIECE_IS(PRESENT, row+(1*direction), col)) SET_LED(GREEN, row+(1*direction), col);
             if(!PIECE_IS(PRESENT, row+(2*direction), col) && FIRST_MOVE(row, col)) SET_LED(GREEN, row+(1*direction), col);
@@ -169,17 +171,45 @@ void find_moves(row, col){
 
 bool suicidal_move(old_row, old_col, new_row, new_col){
 	//TODO disable interrupt
-	backup = ch_ext[new_row][new_col];
-	ch_ext[new_row][new_col] = ch_ext[old_row][old_col];
-	ch_ext[old_row][old_col] = 0x00;
+	byte backup = ch_ext[new_row][new_col];
+	ch_ext[new_row][new_col] = ch_ext[old_row][old_col];						//moving the piece into his new position
+	ch_ext[old_row][old_col] = 0x00;											//clearing his old position
 
 	bool result = check(player);
 
-	ch_ext[old_row][old_col] = ch_ext[new_row][new_col];
+	ch_ext[old_row][old_col] = ch_ext[new_row][new_col];						//restoring old positions
 	ch_ext[new_row][new_col] = 	backup;
 	//TODO enable interrupt
 
 	return result;
+}
+bool suicidal_castling(k_row, old_k_col, new_k_col){
+	//TODO disable interrupt
+	//no need to backup because new positions are free
+	ch_ext[k_row][new_k_col] = ch_ext[k_row][old_k_col];						//moving the king into his new position
+	ch_ext[k_row][old_k_col] = 0x00;
+	if(old_k_col < new_k_col){													//short castling -> rook is on the left
+		ch_ext[k_row][k_col - 1] = ch_ext[k_row][7];
+		ch_ext[k_row][7] = 0x00;
+	}
+	else{
+		ch_ext[k_row][k_col + 1] = ch_ext[k_row][0];							//long castling -> rook is on the right
+		ch_ext[k_row][0] = 0x00;
+	}
+
+	bool result = check(player);
+
+	ch_ext[k_row][old_k_col] = ch_ext[k_row][new_k_col];						//restoring old positions
+	ch_ext[k_row][new_k_col] = 0x00;
+	if(old_k_col < new_k_col){
+		ch_ext[k_row][7] = ch_ext[k_row][k_col - 1];
+		ch_ext[k_row][k_col - 1] = 0x00;
+	}
+	else{
+		ch_ext[k_row][0] = ch_ext[k_row][k_col + 1];
+		ch_ext[k_row][k_col + 1] = 0x00;
+	}
+	//TODO enable interrupt
 }
 
 bool check(player){
@@ -258,7 +288,10 @@ bool check(player){
 		}
 	}
 	//pawn
-	//TODO pawn check
+	if(player == player2)														//if player is the player on top the opponent's pawn can eat only if they are below the king
+		if(PIECE_IS_ALL(PAWN|OPPONENT(player), k_row - 1, k_col - 1) || PIECE_IS_ALL(PAWN|OPPONENT(player), k_row - 1, k_col + 1)) return true;
+	else{
+		if(PIECE_IS_ALL(PAWN|OPPONENT(player), k_row + 1, k_col - 1) || PIECE_IS_ALL(PAWN|OPPONENT(player), k_row + 1, k_col + 1)) return true;
 	//knight
 	if(k_row < 7 && k_col < 5 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row + 1, k_col + 2)) return true;
 	if(k_row < 7 && k_col > 2 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row + 1, k_col - 2)) return true;
