@@ -27,8 +27,8 @@ byte ch_ext[][8] = {
 //player can be 1(white) or 2(black) instead of 0 and 1 for simpler controls
 byte player = 0x01, top_player;													//player is the active player, top_player is the player on the top
 bool castling[] = {true, true};
-int found_row = -1, found_col = -1;
-bool found = false, placed = false;
+int piece_row = -1, piece_col = -1;
+//bool found = false, placed = false;
 
 
 void find_moves(int row, int col){
@@ -46,68 +46,68 @@ void find_moves(int row, int col){
 			//if pawn belongs to the top player its original position is row 1 and direction is 1-> row == direction (a pawn of the bottom player can never be in row -1)
 			//if pawn belongs to the bottom player its original position is  row 6 and direction is -1 -> row == 7+direction (a pawn of the top player can never be in row 8)
             if(row+(2*direction) < 8 && row+(2*direction) >=0 && !PIECE_IS(PRESENT, row+(2*direction), col) && (row == direction || row == 7 + direction))
-				SET_LED(GREEN, row+(2*direction), col);
+				SET_LED(LED_GREEN, row+(2*direction), col);
 			if(row + direction < 8 && row + direction >= 0){
 				if(!PIECE_IS(PRESENT, row + direction, col))
-					SET_LED(GREEN, row + direction, col);
+					SET_LED(LED_GREEN, row + direction, col);
 	            if(PIECE_IS(OPPONENT(player), row + direction, col+1))
-					SET_LED(RED, row + direction, col+1);
+					SET_LED(LED_RED, row + direction, col+1);
 	            if(PIECE_IS(OPPONENT(player), row + direction, col-1))
-					SET_LED(RED, row + direction, col-1);
+					SET_LED(LED_RED, row + direction, col-1);
 			}
             break;
         case ROOK|WHITE:
         case ROOK|BLACK:
             for(int i = row; i < 8; i++){
-                if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
+                if(!PIECE_IS(PRESENT, i, col)) SET_LED(LED_GREEN, i, col);
                 if(PIECE_IS(OPPONENT(player), i, col)){
-                    SET_LED(RED, i, col);
+                    SET_LED(LED_RED, i, col);
                     break;
                 }
             }
             for(int i = row; i >= 0; i--){
-                if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
+                if(!PIECE_IS(PRESENT, i, col)) SET_LED(LED_GREEN, i, col);
                 if(PIECE_IS(OPPONENT(player), i, col)){
-                    SET_LED(RED, i, col);
+                    SET_LED(LED_RED, i, col);
                     break;
                 }
             }
             for(int i = col; i < 8; i++){
-                if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
+                if(!PIECE_IS(PRESENT, row, i)) SET_LED(LED_GREEN, row, i);
                 if(PIECE_IS(OPPONENT(player), row, i)){
-                    SET_LED(RED, row, i);
+                    SET_LED(LED_RED, row, i);
                     break;
                 }
             }
             for(int i = col; i >= 0; i--){
-                if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
+                if(!PIECE_IS(PRESENT, row, i)) SET_LED(LED_GREEN, row, i);
                 if(PIECE_IS(OPPONENT(player), row, i)){
-                    SET_LED(RED, row, i);
+                    SET_LED(LED_RED, row, i);
                     break;
                 }
             }
             break;
         case KNIGHT|BLACK:
         case KNIGHT|WHITE:
-            if(row < 7 && col < 6 && !PIECE_IS(PRESENT, row + 1, col + 2)) SET_LED(GREEN, row + 1, col + 2);
-            if(row < 7 && col > 1 && !PIECE_IS(PRESENT, row + 1, col - 2)) SET_LED(GREEN, row + 1, col - 2);
-            if(row > 0 && col < 6 && !PIECE_IS(PRESENT, row - 1, col + 2)) SET_LED(GREEN, row - 1, col + 2);
-            if(row > 0 && col > 1 && !PIECE_IS(PRESENT, row - 1, col - 2)) SET_LED(GREEN, row - 1, col - 2);
+            if(row < 7 && col < 6 && !PIECE_IS(PRESENT, row + 1, col + 2)) SET_LED(LED_GREEN, row + 1, col + 2);
+            if(row < 7 && col > 1 && !PIECE_IS(PRESENT, row + 1, col - 2)) SET_LED(LED_GREEN, row + 1, col - 2);
+            if(row > 0 && col < 6 && !PIECE_IS(PRESENT, row - 1, col + 2)) SET_LED(LED_GREEN, row - 1, col + 2);
+            if(row > 0 && col > 1 && !PIECE_IS(PRESENT, row - 1, col - 2)) SET_LED(LED_GREEN, row - 1, col - 2);
 
-            if(row < 6 && col < 7 && !PIECE_IS(PRESENT, row + 2, col + 1)) SET_LED(GREEN, row + 2, col + 1);
-            if(row < 6 && col > 0 && !PIECE_IS(PRESENT, row + 2, col - 1)) SET_LED(GREEN, row + 2, col - 1);
-            if(row > 1 && col < 7 && !PIECE_IS(PRESENT, row - 2, col + 1)) SET_LED(GREEN, row - 2, col + 1);
-            if(row > 1 && col > 0 && !PIECE_IS(PRESENT, row - 2, col - 1)) SET_LED(GREEN, row - 2, col - 1);
+            if(row < 6 && col < 7 && !PIECE_IS(PRESENT, row + 2, col + 1)) SET_LED(LED_GREEN, row + 2, col + 1);
+            if(row < 6 && col > 0 && !PIECE_IS(PRESENT, row + 2, col - 1)) SET_LED(LED_GREEN, row + 2, col - 1);
+            if(row > 1 && col < 7 && !PIECE_IS(PRESENT, row - 2, col + 1)) SET_LED(LED_GREEN, row - 2, col + 1);
+            if(row > 1 && col > 0 && !PIECE_IS(PRESENT, row - 2, col - 1)) SET_LED(LED_GREEN, row - 2, col - 1);
 
-            if(row < 7 && col < 6 && PIECE_IS(OPPONENT(player), row + 1, col + 2)) SET_LED(RED, row + 1, col + 2);
-            if(row < 7 && col > 1 && PIECE_IS(OPPONENT(player), row + 1, col - 2)) SET_LED(RED, row + 1, col - 2);
-            if(row > 0 && col < 6 && PIECE_IS(OPPONENT(player), row - 1, col + 2)) SET_LED(RED, row - 1, col + 2);
-            if(row > 0 && col > 1 && PIECE_IS(OPPONENT(player), row - 1, col - 2)) SET_LED(RED, row - 1, col - 2);
+            if(row < 7 && col < 6 && PIECE_IS(OPPONENT(player), row + 1, col + 2)) SET_LED(LED_RED, row + 1, col + 2);
+            if(row < 7 && col > 1 && PIECE_IS(OPPONENT(player), row + 1, col - 2)) SET_LED(LED_RED, row + 1, col - 2);
+            if(row > 0 && col < 6 && PIECE_IS(OPPONENT(player), row - 1, col + 2)) SET_LED(LED_RED, row - 1, col + 2);
+            if(row > 0 && col > 1 && PIECE_IS(OPPONENT(player), row - 1, col - 2)) SET_LED(LED_RED, row - 1, col - 2);
 
-            if(row < 6 && col < 7 && PIECE_IS(OPPONENT(player), row + 2, col + 1)) SET_LED(RED, row + 2, col + 1);
-            if(row < 6 && col > 0 && PIECE_IS(OPPONENT(player), row + 2, col - 1)) SET_LED(RED, row + 2, col - 1);
-            if(row > 1 && col < 7 && PIECE_IS(OPPONENT(player), row - 2, col + 1)) SET_LED(RED, row - 2, col + 1);
-            if(row > 1 && col > 0 && PIECE_IS(OPPONENT(player), row - 2, col - 1)) SET_LED(RED, row - 2, col - 1);
+            if(row < 6 && col < 7 && PIECE_IS(OPPONENT(player), row + 2, col + 1)) SET_LED(LED_RED, row + 2, col + 1);
+            if(row < 6 && col > 0 && PIECE_IS(OPPONENT(player), row + 2, col - 1)) SET_LED(LED_RED, row + 2, col - 1);
+            if(row > 1 && col < 7 && PIECE_IS(OPPONENT(player), row - 2, col + 1)) SET_LED(LED_RED, row - 2, col + 1);
+            if(row > 1 && col > 0 && PIECE_IS(OPPONENT(player), row - 2, col - 1)) SET_LED(LED_RED, row - 2, col - 1);
             break;
         case KING|BLACK:
         case KING|WHITE:
@@ -118,68 +118,68 @@ void find_moves(int row, int col){
 				for(int j = -1; j < 2; j++){
 					if(col + j > 7 || col + j < 0)
 						continue;
-					if(!PIECE_IS(PRESENT, row + i, col + j)) SET_LED(GREEN, row+i, col+j);
-					if(PIECE_IS(OPPONENT(player), row + i, col + j)) SET_LED(RED, row+i, col+j);
+					if(!PIECE_IS(PRESENT, row + i, col + j)) SET_LED(LED_GREEN, row+i, col+j);
+					if(PIECE_IS(OPPONENT(player), row + i, col + j)) SET_LED(LED_RED, row+i, col+j);
 				}
 			}
 			//short castling
 			if(CAN_CASTLE(player) && !PIECE_IS(PRESENT, row, col + 1) && !PIECE_IS(PRESENT, row, col + 2))
-				SET_LED(BLUE, row, col + 2);
+				SET_LED(LED_BLUE, row, col + 2);
 			//long castling
 			if(CAN_CASTLE(player) && !PIECE_IS(PRESENT, row, col - 1) && !PIECE_IS(PRESENT, row, col - 2))
-				SET_LED(BLUE, row, col - 2);
+				SET_LED(LED_BLUE, row, col - 2);
             break;
         case QUEEN|BLACK:
         case QUEEN|WHITE:
             for(int i = row; i < 8; i++){
-                if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
+                if(!PIECE_IS(PRESENT, i, col)) SET_LED(LED_GREEN, i, col);
                 if(PIECE_IS(OPPONENT(player), i, col)){
-                    SET_LED(RED, i, col);
+                    SET_LED(LED_RED, i, col);
                     break;
                 }
             }
             for(int i = row; i >= 0; i--){
-                if(!PIECE_IS(PRESENT, i, col)) SET_LED(GREEN, i, col);
+                if(!PIECE_IS(PRESENT, i, col)) SET_LED(LED_GREEN, i, col);
                 if(PIECE_IS(OPPONENT(player), i, col)){
-                    SET_LED(RED, i, col);
+                    SET_LED(LED_RED, i, col);
                     break;
                 }
             }
             for(int i = col; i < 8; i++){
-                if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
+                if(!PIECE_IS(PRESENT, row, i)) SET_LED(LED_GREEN, row, i);
                 if(PIECE_IS(OPPONENT(player), row, i)){
-                    SET_LED(RED, row, i);
+                    SET_LED(LED_RED, row, i);
                     break;
                 }
             }
             for(int i = col; i >= 0; i--){
-                if(!PIECE_IS(PRESENT, row, i)) SET_LED(GREEN, row, i);
+                if(!PIECE_IS(PRESENT, row, i)) SET_LED(LED_GREEN, row, i);
                 if(PIECE_IS(OPPONENT(player), row, i)){
-                    SET_LED(RED, row, i);
+                    SET_LED(LED_RED, row, i);
                     break;
                 }
             }
         case BISHOP|BLACK:
         case BISHOP|WHITE:
             for(int i = 0; row + i < 8 && col + i < 8; i++){
-                if(!PIECE_IS(PRESENT, row + i, col + i)) SET_LED(GREEN, row + i, col + i);
-                if(PIECE_IS(OPPONENT(player), row + i, col + i)) SET_LED(RED, row + i, col + i);
+                if(!PIECE_IS(PRESENT, row + i, col + i)) SET_LED(LED_GREEN, row + i, col + i);
+                if(PIECE_IS(OPPONENT(player), row + i, col + i)) SET_LED(LED_RED, row + i, col + i);
             }
             for(int i = 0; row + i < 8 && col - i > 0; i++){
-                if(!PIECE_IS(PRESENT, row + i, col - i)) SET_LED(GREEN, row + i, col - i);
-                if(PIECE_IS(OPPONENT(player), row + i, col - i)) SET_LED(RED, row + i, col - i);
+                if(!PIECE_IS(PRESENT, row + i, col - i)) SET_LED(LED_GREEN, row + i, col - i);
+                if(PIECE_IS(OPPONENT(player), row + i, col - i)) SET_LED(LED_RED, row + i, col - i);
             }
             for(int i = 0; row - i > 0 && col + i < 8; i++){
-                if(!PIECE_IS(PRESENT, row - i, col + i)) SET_LED(GREEN, row - i, col + i);
-                if(PIECE_IS(OPPONENT(player), row - i, col + i)) SET_LED(RED, row - i, col + i);
+                if(!PIECE_IS(PRESENT, row - i, col + i)) SET_LED(LED_GREEN, row - i, col + i);
+                if(PIECE_IS(OPPONENT(player), row - i, col + i)) SET_LED(LED_RED, row - i, col + i);
             }
             for(int i = 0; row - i > 0 && col - i > 0; i++){
-                if(!PIECE_IS(PRESENT, row - i, col - i)) SET_LED(GREEN, row - i, col - i);
-                if(PIECE_IS(OPPONENT(player), row - i, col - i)) SET_LED(RED, row - i, col - i);
+                if(!PIECE_IS(PRESENT, row - i, col - i)) SET_LED(LED_GREEN, row - i, col - i);
+                if(PIECE_IS(OPPONENT(player), row - i, col - i)) SET_LED(LED_RED, row - i, col - i);
             }
             break;
     }
-}
+}//TODO add suicidal move control
 
 bool suicidal_move(int old_row, int old_col, int new_row, int new_col){
 	//TODO disable interrupt
@@ -325,8 +325,70 @@ bool check(byte player){
 	if(k_row > 2 && k_col > 1 && PIECE_IS_ALL(KNIGHT|OPPONENT(player), k_row - 2, k_col - 1)) return true;
 }
 
-void error_handler(){}//TODO chessboard red; found = false -> enables monitoring
+void errorHandler(){}//TODO chessboard LED_RED; found = false -> enables monitoring
 
-void stateRoutine(Game game){}
+void chess_setup(Game *game_ptr){
+	game->ch_bitmap = ch_bitmap;
+	game->state = COLOR_CHOICE;
+	game->stateRoutine = stateRoutine;
+	game->top_button_interrupt = resignTop;
+	game->middle_button_interrupt = draw;
+	game->bottom_button_interrupt = resignBottom;
+
+}
+
+void stateRoutine(Game game){
+	switch(game.state){
+		case COLOR_CHOICE: //TODO 1 or 2 players, white on top or bottom
+			break;
+		case CH_SETUP:
+			if(ch_setted())
+				game.state = WAITING;
+			break;
+		case WAITING:
+			if(game.found){
+				if(game.placed){
+					errorHandler();
+				}
+				else{
+					piece_row = game.found_row;
+					piece_col = game.found_col;
+					find_moves(piece_row, piece_col);
+					game.state = MOVE;
+				}
+			}
+			break;
+		case MOVE:
+			if(game.found){
+				if(!game.placed){												//if a piece is removed
+					if(LED_IS(LED_RED, game.found_row, game.found_col)){		//if the piece is eaten
+						ch_default();											//reset led
+						SET_LED(LED_BLUE, game.found_row, game.found_col);		//next move must be from (piece_row, piece_col) to (found_row, found_col)
+					}
+					else{
+						errorHandler();
+					}
+				}
+				else{
+					if(LED_IS(LED_GREEN,game.found_row, game.found_col)||LED_IS(LED_BLUE,game.found_row, game.found_col)){
+						MOVE(piece_row, piece_col, game.found_row, game.found_col);
+						ch_bitmap[game.found_row] = ch_bitmap[game.found_row] | (1<<game.found_col);//set to 1 the new position
+						ch_bitmap[piece_row] = ch_bitmap[piece_row] & ~(1<<piece_col);//set to 0 the old position
+					}
+					else if (!ch_setted()) {									//if the piece is moved in its old position
+						errorHandler();
+					}
+					ch_default();
+					player = OPPONENT(player);
+					game.state = WAITING;
+				}
+			}
+			break;
+	}
+}
+
 void draw(Game game){}
-void resign(Game game){}
+
+void resignTop(Game game){}
+
+void resignBottom(Game game){}
