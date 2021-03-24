@@ -1,17 +1,19 @@
+#include "common.h"
 #define PRESENT 0xff
-#define WHITE 0x01
-#define BLACK 0x02
-#define PAWN 0x04
-#define ROOK 0x08
-#define KNIGHT 0x10
-#define BISHOP 0x20
-#define QUEEN 0x40
-#define KING 0x80
-#define PIECE_IS(type, row, col) (ch_ext[row][col]&type)                        //equal zero if type doesn't matches, greater than zero otherwise
-#define PIECE_IS_ALL(type, row, col) ((ch_ext[row][col]&type) == type)
-#define OPPONENT(player) player^0x03
-#define MOVE(old_row, old_col, new_row, new_col) (ch_ext[new_row][new_col] = ch_ext[old_row][old_col]; ch_ext[old_row][old_col] = 0x00)
-#define CAN_CASTLE(pl) (castling[pl-1])
+#define WHITE 	0x01
+#define BLACK 	0x02
+#define PAWN 	0x04
+#define ROOK 	0x08
+#define KNIGHT 	0x10
+#define BISHOP 	0x20
+#define QUEEN 	0x40
+#define KING 	0x80
+
+#define PIECE_IS(type, row, col) 					(ch_ext[row][col]&type)                        //equal zero if type doesn't matches, greater than zero otherwise
+#define PIECE_IS_ALL(type, row, col) 				((ch_ext[row][col]&type) == type)
+#define OPPONENT(player) 							player^0x03
+#define CAN_CASTLE(pl) 								(castling[pl-1])
+#define MOVE(old_row, old_col, new_row, new_col) 	(ch_ext[new_row][new_col] = ch_ext[old_row][old_col]; ch_ext[old_row][old_col] = 0x00)
 
 byte ch_bitmap[] = {0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff};
 byte ch_ext[][8] = {
@@ -41,7 +43,7 @@ void find_moves(int row, int col){
         case PAWN|BLACK:
         case PAWN|WHITE:
 			//top_player is the player on top (color doesn't matter)
-			if(PIECE_IS(top_player, row, col)) direction = 1;						//top_player's pawns can only eat and move downward, bottom player's pawns can only eat and move upward
+			if(PIECE_IS(top_player, row, col)) direction = 1;					//top_player's pawns can only eat and move downward, bottom player's pawns can only eat and move upward
 			//(row == direction || row == 7+direction) -> true only if the pawn is in the original position
 			//if pawn belongs to the top player its original position is row 1 and direction is 1-> row == direction (a pawn of the bottom player can never be in row -1)
 			//if pawn belongs to the bottom player its original position is  row 6 and direction is -1 -> row == 7+direction (a pawn of the top player can never be in row 8)
@@ -50,9 +52,9 @@ void find_moves(int row, int col){
 			if(row + direction < 8 && row + direction >= 0){
 				if(!PIECE_IS(PRESENT, row + direction, col))
 					SET_LED(LED_GREEN, row + direction, col);
-	            if(PIECE_IS(OPPONENT(player), row + direction, col+1))
+				if(PIECE_IS(OPPONENT(player), row + direction, col+1))
 					SET_LED(LED_RED, row + direction, col+1);
-	            if(PIECE_IS(OPPONENT(player), row + direction, col-1))
+				if(PIECE_IS(OPPONENT(player), row + direction, col-1))
 					SET_LED(LED_RED, row + direction, col-1);
 			}
             break;
@@ -327,7 +329,7 @@ bool check(byte player){
 
 void errorHandler(){}//TODO chessboard LED_RED; found = false -> enables monitoring
 
-void chess_setup(Game *game_ptr){
+void chess_setup(Game *game){
 	game->ch_bitmap = ch_bitmap;
 	game->state = COLOR_CHOICE;
 	game->stateRoutine = stateRoutine;
