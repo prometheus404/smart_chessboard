@@ -1,15 +1,41 @@
 #include<FastLED.h>
 #include<TaskScheduler.h>
-#include"struct.h"
-#include"common.h"
+#define NUM_LEDS 	64
+#define TOP 		2
+#define BOTTOM 		3
+#define LED_PIN 	4
+#define SHIFT_MODE 	5
+#define SHIFT_CLK 	6
+#define SHIFT_DATA 	7
+#define LCD_RS 		8
+#define LCD_EN 		9
+#define LCD_D4 		10
+#define LCD_D5 		11
+#define LCD_D6 		12
+#define LCD_D7 		13
+
+#define LED_GREEN 	CRGB::Green
+#define LED_RED 	CRGB::Red
+#define LED_YELLOW 	CRGB::Yellow
+#define LED_PURPLE 	CRGB::Purple
+#define LED_BLUE 	CRGB::Blue
+#define LED_WHITE 	CRGB::White
+#define LED_BLACK 	CRGB::Black
+#include "struct.h"
+#define SET_LED(color, row, col) 	(leds[(row*8) + col] = color)
+#define LED_IS(color, row, col) 	(leds[(row*8) + col] == color)
+CRGB leds[NUM_LEDS];
+Game game;
+//#include"common.h"
+//#include"struct.h"
 //including rules
 #include"test.h"
 //#include"chess.h"
 
 
 
-CRGB leds[NUM_LEDS];
-Game game;
+
+
 
 
 volatile int selected = 0;
@@ -27,7 +53,7 @@ void led_show();
 Scheduler scheduler;
 Task t_monitor(200, TASK_FOREVER, &ch_monitoring);
 Task t_led(200, TASK_FOREVER, &led_show, &scheduler, true);
-Task t_game(200, TASK_FOREVER, game.state_routine);
+Task t_game(200, TASK_FOREVER, game.state_routine, &scheduler, true);
 //TODO generate a dynamic third Task for the game main loop 
 
 void led_show(){
@@ -153,6 +179,8 @@ void arrow_down(){
 
 //check if a piece is placed on the board, if found set up the game
 void main_loop(){
+	Serial.print("main_loop: ");
+	Serial.println(game_text[selected]);
 	for(int i = 0; i < 8; i++)
 		if(game.actual[i])
 			setup_game[selected](game);
@@ -166,11 +194,14 @@ void setup(){
 	attachInterrupt(digitalPinToInterrupt(BOTTOM), button_bottom, RISING);
 	FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 	Serial.begin(9600);
+	Serial.write("game initialization");
 	game.top_button = arrow_up; 
 	game.bottom_button = arrow_down;
 	game.state_routine = main_loop;
+	Serial.write("starting now");
 	scheduler.startNow();
 }
 void loop(){
+	Serial.println("loop");
 	scheduler.execute();
 }

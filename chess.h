@@ -330,7 +330,7 @@ bool check(byte player){
 void errorHandler(){}//TODO chessboard LED_RED; found = false -> enables monitoring
 
 void chess_setup(Game *game){
-	game->ch_bitmap = ch_bitmap;
+	//game->ch_bitmap = ch_bitmap;
 	game->state = COLOR_CHOICE;
 	game->stateRoutine = stateRoutine;
 	game->top_button_interrupt = resignTop;
