@@ -1,4 +1,3 @@
-#include "common.h"
 #define PRESENT 0xff
 #define WHITE 	0x01
 #define BLACK 	0x02
@@ -339,7 +338,7 @@ void chess_setup(Game *game){
 
 }
 
-void stateRoutine(Game game){
+void stateRoutine(){
 	switch(game.state){
 		case COLOR_CHOICE: //TODO 1 or 2 players, white on top or bottom
 			break;
