@@ -14,7 +14,7 @@ great learning tool for those who want to start playing chess.
 - button 				x2
 
 ## Schematic Circuit
-![circut img](circut/chessboard.jpg)
+![circut img](circuit/chessboard.jpg)
 
 ## Features
 After startup the currently selected game mode is shown on the LCD display and 
