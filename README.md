@@ -22,7 +22,7 @@ the user can move to the next or previous with the two buttons on the side.
 Once a piece has been placed the currently selected game starts.
 
 # Games
-At the moment the only implemented game is two players offline Chess.
+At the moment the only implemented game is two players offline Tic Tac Toe.
 
 ## Add your game
 *todo add instruction*
