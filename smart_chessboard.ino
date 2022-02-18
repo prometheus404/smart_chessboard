@@ -1,7 +1,8 @@
 #include<FastLED.h>
-#include<TaskScheduler.h>
+//#include<TaskScheduler.h>
 #include <LiquidCrystal.h>
 #include "struct.h"
+#include <stdlib.h>
 
 #define NUM_LEDS 	64
 #define TOP 		2
@@ -34,16 +35,19 @@ Game game;
 #define LED_IS(color, row, col) 	(leds[(row*8) + col] == color)
 
 //including rules
+#include"tris.h"
 #include"test.h"
 #include"test_green.h"
 //#include"chess.h"
 
-
-volatile int selected = 0;
-int n_games = 2;
+//debouncing
+unsigned long debouncing = 400; //in milliseconds 
+volatile unsigned long last_interrupt;
+volatile int selected = 2;
+int n_games = 3;
 typedef void (*setup_func)();
-setup_func setup_game[] = {test_setup, test_green_setup};
-String game_text[] = {"test", "test green"};
+setup_func setup_game[] = {tris_setup, test_setup, test_green_setup};
+String game_text[] = {"tris", "test", "test green"};
 
 
 //TODO scheduler
@@ -65,16 +69,10 @@ void led_show(){
 void ch_monitoring(){
 	//TODO ensure that chMonitoring is scheduled only after game setup
 	digitalWrite(SHIFT_MODE, LOW);
-    delay(5);																	//saving chessboard status
+    delay(10);																	//saving chessboard status
     digitalWrite(SHIFT_MODE, HIGH);												//
-    for(int row = 0; row < 8; row++){
-		game.actual[row] = chRead();
-    Serial.print(row);
-    if(game.actual[row])
-      Serial.println(1);
-    else
-      Serial.println(0);
-    }
+    for(int row = 0; row < 8; row++)
+		  game.actual[row] = chRead();
 }
 //called
 byte chRead(){
@@ -83,7 +81,7 @@ byte chRead(){
       if(digitalRead(SHIFT_DATA) == HIGH)
         b = b | 0x01<<(7-i);
       digitalWrite(SHIFT_CLK, HIGH);
-	  delay(5);
+	  delay(10);
       digitalWrite(SHIFT_CLK, LOW);
     }
     return b;
@@ -92,27 +90,39 @@ byte chRead(){
 
 
 void button_top(){
-	game.top_button();
+	if((long)(millis() - last_interrupt) >= debouncing){
+		game.top_button();
+		last_interrupt = millis();
+    Serial.println(micros()-last_interrupt);
+    Serial.println(debouncing);
+    Serial.println(106);
+    Serial.println("______");
+	}else{
+		Serial.println("debounced");
+	}
 }
 void arrow_up(){
 	selected = (selected+1)%n_games;
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("select game:");
-  lcd.setCursor(0,1);
-  lcd.print(game_text[selected]);
+	update_lcd();
 }
 
 void button_bottom(){
-	game.bottom_button();
+	if((long)(millis() - last_interrupt) >= debouncing){
+		game.bottom_button();
+		last_interrupt = millis();
+	}
 }
 void arrow_down(){
-	selected = (selected-1)%n_games;
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("select game:");
-  lcd.setCursor(0,1);
-  lcd.print(game_text[selected]);
+	selected = (selected-1+n_games)%n_games;
+	update_lcd();
+}
+
+void update_lcd(){
+	lcd.clear();
+	lcd.setCursor(0,0);
+	lcd.print("select game:");
+	lcd.setCursor(0,1);
+	lcd.print(game_text[selected]);
 }
 
 //check if a piece is placed on the board, if found set up the game
@@ -124,30 +134,27 @@ void main_loop(){
 
 void setup(){
 	pinMode(SHIFT_CLK, OUTPUT);
-  pinMode(SHIFT_MODE, OUTPUT);
-  pinMode(SHIFT_DATA, INPUT);
+	pinMode(SHIFT_MODE, OUTPUT);
+	pinMode(SHIFT_DATA, INPUT);
 	attachInterrupt(digitalPinToInterrupt(TOP), button_top, RISING);
 	attachInterrupt(digitalPinToInterrupt(BOTTOM), button_bottom, RISING);
 	FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 	Serial.begin(9600);
-  lcd.begin(16, 2);
+	lcd.begin(16, 2);
 	lcd.print("hi");
 	game.top_button = *arrow_up; 
 	game.bottom_button = *arrow_down;
 	game.state_routine = *main_loop;
 	delay(1000);
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("select game:");
-  lcd.setCursor(0,1);
-  lcd.print(game_text[selected]);
-  
+	update_lcd();
 	//scheduler.startNow();
 }
+
 void loop(){
-  ch_monitoring();
-  game.state_routine();
+	ch_monitoring();
+	game.state_routine();
+	FastLED.show();
   FastLED.show();
-  delay(200);
+	delay(200);
 	//scheduler.execute();
 }
