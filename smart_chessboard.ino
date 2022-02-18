@@ -91,16 +91,13 @@ byte chRead(){
 
 void button_top(){
 	if((long)(millis() - last_interrupt) >= debouncing){
+		noInterrupts(); //used to avoid concurrency problems with interrupts (if last_interrupt is not updated two interrupts can call the function)
 		game.top_button();
 		last_interrupt = millis();
-    Serial.println(micros()-last_interrupt);
-    Serial.println(debouncing);
-    Serial.println(106);
-    Serial.println("______");
-	}else{
-		Serial.println("debounced");
+		interrupts();
 	}
 }
+
 void arrow_up(){
 	selected = (selected+1)%n_games;
 	update_lcd();
@@ -108,8 +105,10 @@ void arrow_up(){
 
 void button_bottom(){
 	if((long)(millis() - last_interrupt) >= debouncing){
+		noInterrupts();
 		game.bottom_button();
 		last_interrupt = millis();
+		interrupts();
 	}
 }
 void arrow_down(){
