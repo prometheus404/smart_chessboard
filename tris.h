@@ -1,6 +1,9 @@
 #define SETUP 0x00
 #define WAIT 0x01
 
+#define WIN 0x00
+#define DRAW 0x01
+
 int board[] = {0,0,0,0,0,0,0,0,0};
 CRGB player_color[] = {LED_YELLOW, LED_PURPLE};
 int player = 1;
@@ -92,10 +95,20 @@ bool check_win(){
 	return false;
 }
 
-void win(){
+bool check_draw(){
+	for(int i = 0; i < 9; i++)
+		if(!board[i])
+			return false;
+	return true;
+}
+
+void end(byte result){
+	CRGB color = LED_GREEN;
+	if(result == WIN)
+		color = player_color[player-1];
 	for(int row = 0; row < 8; row++)
 		for(int col = 0; col < 8; col++)
-			SET_LED(player_color[player-1], row, col);
+			SET_LED(color, row, col);
 	FastLED.show();
 	delay(2000);
 	reset_board();
@@ -130,7 +143,9 @@ void tris_routine(){
 			} else {
 				board[square] = player;
 				if(check_win())
-					win();
+					end(WIN);
+				if(check_draw())
+					end(DRAW);
 				player = player ^ 0x03;
 			}
 			byte * bitmap = game.ch_bitmap;
